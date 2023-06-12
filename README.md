@@ -1,4 +1,7 @@
-# fitzjson-tests
+<p align=center>
+<img src="https://raw.githubusercontent.com/xtao-org/fitzjson/master/logo2.png" alt="fitzJSON logo" width="160"/>
+<h1 align=center>fitzjson-tests</h1>
+</p>
 
 Tests for [fitzJSON](https://github.com/xtao-org/fitzjson) parsers.
 
