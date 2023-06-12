@@ -24,14 +24,18 @@ const TS_FITZJSON_WASM_PATH = env.TS_FITZJSON_WASM_PATH ?? 'node_modules/@xtao-o
  * @param {Parser.SyntaxNode} node
  * TODO: perhaps truncate errors if too many
  */
-const getErrors = (node, errors = []) => {
-  if (errors.includes(node)) return errors
-  if (node.type === 'ERROR' || node.hasError() || node.isMissing()) errors.push(node)
+const getErrors1 = (node, errors = []) => {
+  if (node.type === 'ERROR' || node.type === 'MISSING' || node.hasError() || node.isMissing()) errors.push(node)
   for (const c of node.children) {
-    if (c.type === 'ERROR' || node.hasError() || c.isMissing()) errors.push(c)
-    else getErrors(c, errors)
+    getErrors1(c, errors)
   }
-  return errors.map(e => e.toString())
+  return errors
+}
+
+const getErrors = (node) => {
+  const errors1 = getErrors1(node)
+
+  return errors1.map(e => [e.toString(), e.startPosition, e.endPosition])
 }
 
 const makeParser = async () => {
@@ -94,11 +98,11 @@ const main = async () => {
 // xxx
 // "]`).rootNode
 
-//   const ers = getErrors(rootNode)
+  // const ers = getErrors(rootNode)
 
-//   console.log(rootNode.toString(), ers)
+  // console.log(rootNode.toString(), ers)
 
-//   process.exit()
+  // process.exit()
 
   for (const name of readdirSync(path)) {
     // const {name} = dirEntry
@@ -108,7 +112,9 @@ const main = async () => {
       let failedAsExpected = false
 
       const tree = parser.parse(str)
+      
       const errors = getErrors(tree.rootNode)
+    
       if (errors.length > 0) {
         if (name.startsWith('y_')) {
           console.error(ret)
