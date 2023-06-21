@@ -57,6 +57,33 @@ const file = (path) => {
   return readFileSync(path, {encoding: 'utf-8'})
 }
 
+// these tests would fail for JSON, but for fitzJSON we expect them to succeed
+const override_failures = new Set([
+  'n_array_1_true_without_comma.json',
+  'n_array_extra_comma.json',
+  'n_array_number_and_comma.json',
+  'n_number_+1.json',
+  'n_number_NaN.json',
+  'n_number_hex_1_digit.json',
+  'n_number_hex_2_digits.json',
+  'n_number_infinity.json',
+  'n_number_minus_infinity.json',
+  'n_object_key_with_single_quotes.json',
+  'n_object_missing_colon.json',
+  'n_object_missing_semicolon.json',
+  'n_object_non_string_key.json',
+  // hm
+  'n_object_non_string_key_but_huge_number_instead.json',
+  'n_object_single_quote.json',
+  'n_object_trailing_comma.json',
+  'n_object_trailing_comment.json',
+  'n_object_trailing_comment_slash_open.json',
+  'n_object_unquoted_key.json',
+  'n_string_single_quote.json',
+  'n_structure_object_with_comment.json',
+  // todo: a few more controversial tests with ids -- figure out whether ids should really be part of fitzJSON first
+])
+
 // oof cases:
 // Expected n_object_lone_continuation_byte_in_key_and_trailing_comma.json to fail
 // {"�":"0",} -- this seems to be a tree-sitter thing; it accepts non-code-points even with the /u flag
@@ -139,9 +166,13 @@ const main = async () => {
             debug('failed, as expected', errors)
           }
         } else if (name.startsWith('n_')) {
-          console.error(errors)
-          debug(`Expected ${name} to fail`)
-          console.log(str)
+          if (override_failures.has(name)) {
+            debug(`As expected: ${name} passed even though it would for JSON`)
+          } else {
+            console.error(errors)
+            debug(`Expected ${name} to fail`)
+            console.log(str)
+          }
           // throw Error(`Expected ${name} to fail`)
         }
       }
